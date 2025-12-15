@@ -2,6 +2,9 @@
 
 import { useState, useCallback } from "react";
 
+// CONFIGURATION
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://47.129.254.80:7860";
+
 // ROLE PRESETS (matching backend)
 const ROLE_OPTIONS = [
   "Backend Engineer",
