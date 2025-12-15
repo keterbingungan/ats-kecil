@@ -5,7 +5,6 @@ import { useState, useCallback } from "react";
 // CONFIGURATION
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://47.129.254.80:7860";
 
-// ROLE PRESETS (matching backend)
 const ROLE_OPTIONS = [
   "Backend Engineer",
   "Frontend Engineer",
@@ -17,14 +16,8 @@ const ROLE_OPTIONS = [
   "Data Engineer",
 ];
 
-// Supported file extensions
-const SUPPORTED_EXTENSIONS = ['.pdf', '.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.webp'];
-const ACCEPTED_FILE_TYPES = "application/pdf,image/jpeg,image/png,image/bmp,image/tiff,image/webp";
-
-// Helper to check if file is supported
-const isFileSupported = (filename) => {
-  const ext = '.' + filename.toLowerCase().split('.').pop();
-  return SUPPORTED_EXTENSIONS.includes(ext);
+const isPdfFile = (filename) => {
+  return filename.toLowerCase().endsWith('.pdf');
 };
 
 export default function Home() {
@@ -40,7 +33,7 @@ export default function Home() {
   // Handle file selection
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files).filter((f) =>
-      isFileSupported(f.name)
+      isPdfFile(f.name)
     );
     setFiles((prev) => [...prev, ...selectedFiles]);
     setError(null);
@@ -61,7 +54,7 @@ export default function Home() {
     e.preventDefault();
     setIsDragOver(false);
     const droppedFiles = Array.from(e.dataTransfer.files).filter((f) =>
-      isFileSupported(f.name)
+      isPdfFile(f.name)
     );
     setFiles((prev) => [...prev, ...droppedFiles]);
     setError(null);
@@ -181,7 +174,7 @@ export default function Home() {
               <input
                 type="file"
                 multiple
-                accept={ACCEPTED_FILE_TYPES}
+                accept=".pdf"
                 onChange={handleFileChange}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
@@ -205,7 +198,7 @@ export default function Home() {
                   Drop CV Files Here
                 </h3>
                 <p className="text-slate-400">
-                  or click to browse • PDF & images (JPG, PNG)
+                  or click to browse • PDF files only
                 </p>
               </div>
             </div>
@@ -225,55 +218,46 @@ export default function Home() {
                   </button>
                 </div>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {files.map((file, index) => {
-                    const isImage = file.name.toLowerCase().match(/\.(jpg|jpeg|png|bmp|tiff|webp)$/);
-                    return (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between p-3 bg-slate-700/50 rounded-xl group"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-lg ${isImage ? 'bg-blue-500/20' : 'bg-red-500/20'} flex items-center justify-center`}>
-                            {isImage ? (
-                              <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                            ) : (
-                              <svg className="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
-                              </svg>
-                            )}
-                          </div>
-                          <div>
-                            <p className="text-sm text-white font-medium truncate max-w-[200px]">
-                              {file.name}
-                            </p>
-                            <p className="text-xs text-slate-400">
-                              {(file.size / 1024).toFixed(1)} KB • {isImage ? 'Image' : 'PDF'}
-                            </p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => removeFile(index)}
-                          className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-400 transition-all"
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M6 18L18 6M6 6l12 12"
-                            />
+                  {files.map((file, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-slate-700/50 rounded-xl group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center">
+                          <svg className="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
                           </svg>
-                        </button>
+                        </div>
+                        <div>
+                          <p className="text-sm text-white font-medium truncate max-w-[200px]">
+                            {file.name}
+                          </p>
+                          <p className="text-xs text-slate-400">
+                            {(file.size / 1024).toFixed(1)} KB
+                          </p>
+                        </div>
                       </div>
-                    );
-                  })}
+                      <button
+                        onClick={() => removeFile(index)}
+                        className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-400 transition-all"
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
