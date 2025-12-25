@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+__pycache__/
+venv/
+.env
+*.pyc
+
+# Next.js
+.next/
+out/
+
+# Backend (Private)
+backend/
+ProjectFinal_ML_4_B/
+ats-project.zip
+
+# System
+.DS_Store
