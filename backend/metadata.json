@@ -1,0 +1,24 @@
+{
+  "best_params": {
+    "learning_rate": 7e-05,
+    "batch_size": 32,
+    "epochs": 30,
+    "max_length": 256,
+    "weight_decay": 0.01,
+    "patience": 3
+  },
+  "test_performance": {
+    "f1": 0.9086211180124224,
+    "accuracy": 0.9730452931837237,
+    "precision": 0.9126572170093831,
+    "recall": 0.9046205600079154
+  },
+  "training_date": "2025-12-08 15:55:21",
+  "model_name": "distilbert-base-uncased",
+  "num_tags": 3,
+  "tag2idx": {
+    "O": 0,
+    "B-SKILL": 1,
+    "I-SKILL": 2
+  }
+}

@@ -1,70 +1,70 @@
-# 🚀 Intelligent ATS (AI-Powered Recruitment Tool)
+# 🧠 Intelligent ATS: Resume Parser & Ranker with NER Transformers
 
-**Intelligent ATS** adalah aplikasi web modern yang dirancang untuk streamline proses rekrutmen menggunakan **Artificial Intelligence**. Aplikasi ini secara otomatis mengekstrak skill dari CV pelamar (PDF) dan mencocokkannya dengan requirement pekerjaan secara real-time.
-
-Proyek ini mendemonstrasikan integrasi antara **Machine Learning (NER/NLP)** dengan **Modern Web Development**.
+**Intelligent ATS** adalah sistem end-to-end NLP project yang dirancang untuk mengotomatisasi penyaringan CV. Project ini berfokus pada ekstraksi entitas (Named Entity Recognition) menggunakan **Fine-tuned DistilBERT** untuk mengidentifikasi *Technical Skills* dan melakukan ranking kandidat menggunakan pendekatan **Hybrid Scoring** (Semantic + Keyword Coverage).
 
 🔗 **Live Demo:** [https://ats-kecil.vercel.app](https://ats-kecil.vercel.app)
 
 ---
 
-## ✨ Fitur Utama
+## 🔬 Data Science Methodology
 
-- **📄 Smart PDF Parsing**: Upload banyak CV sekaligus dan ekstrak teks secara otomatis.
-- **🤖 AI-Driven Extraction**: Menggunakan model **DistilBERT** (Fine-tuned) untuk mendeteksi technical skills dari teks yang tidak terstruktur.
-- **📊 Automated Matching**: Algoritma scoring cerdas yang menghitung kecocokan kandidat vs. lowongan.
-- **🔍 Detailed Insights**: Visualisasi skill yang *Matched*, *Missing*, dan *Extra* untuk setiap kandidat.
-- **⚡ Modern UI**: Interface futuristik dengan Glassmorphism, dibangun menggunakan Next.js & Tailwind CSS.
+Project ini tidak hanya sekadar memanggil API, tetapi melalui proses eksperimen model deep learning untuk mendapatkan akurasi ekstraksi terbaik.
 
----
+### 1. Model Selection & Experimentation
+Kami membandingkan tiga arsitektur model untuk task Named Entity Recognition (NER) pada dataset resume:
 
-## 🛠️ Tech Stack
+| Model Architecture | F1-Score | Accuracy | Status |
+|--------------------|----------|----------|--------|
+| **DistilBERT (Transformer)** | **0.9086** | **0.9730** | ✅ **Selected** |
+| BiLSTM | 0.8686 | 0.9582 | ❌ Discarded |
+| BiGRU | 0.8632 | 0.9562 | ❌ Discarded |
 
-### Frontend (Repository Ini)
-- **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Components**: React Icons, standar UI modern
-- **Deployment**: Vercel
+> **Insight:** DistilBERT dipilih karena menawarkan performa terbaik dengan F1-Score **90.86%** dan akurasi **97.30%**. Arsitektur Transformer dengan mekanisme self-attention mampu menangkap relasi semantik dalam dokumen secara lebih akurat dibanding model RNN tradisional.
 
-### Backend (Sistem Private)
-> *Catatan: Kode backend (API & Model ML) disimpan di repository terpisah untuk alasan privasi/lisensi.*
+### 2. Preprocessing Pipeline
+Rangkaian preprocessing yang diterapkan untuk menjaga kualitas ekstraksi skill:
 
-- **API**: FastAPI (Python)
-- **ML Engine**: TensorFlow, Hugging Face Transformers
-- **Model**: DistilBERT (Token Classification)
-- **Infrastructure**: GPU-accelerated cloud instance
+1. **Tokenization**: Memecah teks CV menjadi unit-unit kata/frasa menggunakan tokenizer DistilBERT.
+2. **Selective Cleaning**: Menghapus noise namun mempertahankan simbol teknis penting seperti "C++", "C#", "TensorFlow 2.0".
+3. **Fuzzy String Matching**: Menggunakan Levenshtein Distance untuk menstandarisasi variasi penulisan (misalnya: "Javascript" vs "JavaScript", "machine learning" vs "machine-learning").
 
----
+### 3. Algoritma Scoring (Hybrid Approach)
+Sistem menggunakan **Hybrid Scoring Mechanism** untuk ranking kandidat:
 
-## 📸 Preview
-
-*Visualisasi antarmuka aplikasi yang menampilkan hasil ranking kandidat dan detail skill.*
+1.  **NER Extraction:** Mengekstrak entitas skill dari PDF menggunakan model DistilBERT yang telah di-fine-tune.
+2.  **Coverage Ratio:** Menghitung persentase skill kandidat yang memenuhi *hard-requirement*.
+    $$Score_{coverage} = \frac{\text{Detected Skills} \cap \text{Required Skills}}{\text{Required Skills}} \times 100\%$$
+3.  **Cosine Similarity:** Mengukur kesesuaian semantik antara representasi vektor skill kandidat dengan deskripsi pekerjaan target.
 
 ---
 
-## 🚀 Cara Menjalankan (Frontend)
+## 🛠️ Technical Architecture
 
-1. **Clone Repository**
-   ```bash
-   git clone https://github.com/keterbingungan/ats-kecil.git
-   cd ats-kecil/frontend
-   ```
+Sistem dibangun dengan arsitektur **Microservices** untuk memisahkan beban komputasi ML dengan antarmuka pengguna.
 
-2. **Install Dependencies**
-   ```bash
-   npm install
-   ```
+### Backend & ML Pipeline
+- **Framework**: FastAPI (Python) untuk high-performance asynchronous serving.
+- **ML Engine**: Hugging Face Transformers & TensorFlow.
+- **Preprocessing**: PDF text extraction, Tokenization, Fuzzy Matching.
+- **Model Serving**: Model diload ke memory saat startup untuk low-latency inference.
+- **Deployment**: AWS EC2 + Systemd untuk fault-tolerant daemon process, Ngrok untuk secure HTTPS tunneling.
 
-3. **Jalankan Development Server**
-   ```bash
-   npm run dev
-   ```
-
-4. **Buka Browser**
-   Buka [http://localhost:3000](http://localhost:3000) untuk melihat aplikasi.
+### Frontend
+- **Framework**: Next.js 14 & Tailwind CSS.
+- **Hosting**: Vercel dengan CDN (Content Delivery Network).
+- **Role**: Mengirim file PDF ke backend dan memvisualisasikan hasil scoring (Skills, Score, Missing Skills).
 
 ---
 
-## 📝 License
+## � Dataset
 
-Project ini dibuat untuk tujuan edukasi dan portofolio.
+Dataset yang digunakan berasal dari platform **HuggingFace** yang berisi kumpulan resume/CV dalam format:
+- **JSON**: Teks mentah dengan annotations label entitas (SKILL) beserta koordinat karakter.
+- **PDF**: Format tidak terstruktur untuk testing real-world scenario.
+
+---
+
+## 📝 Future Improvements
+- Mengeksplorasi varian model Transformer lain seperti **RoBERTa** atau **Longformer** untuk menangani dokumen panjang.
+- Memperluas cakupan NER ke entitas lain seperti *Pengalaman Kerja*, *Pendidikan*, dan *Sertifikasi*.
+- Menambah variasi dataset CV termasuk **Bahasa Indonesia** untuk meningkatkan kemampuan generalisasi model.
